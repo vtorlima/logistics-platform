@@ -36,3 +36,7 @@ env/
 
 # Power BI
 *.pbix
+
+# Excel operational workbook (binary — VBA source is in excel/vba/)
+*.xlsm
+*.xlsb
