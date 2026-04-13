@@ -1,0 +1,82 @@
+-- ============================================================================
+-- Payroll measures
+-- ============================================================================
+
+Total Payroll =
+SUM(monthly_driver_summary[pay_total])
+
+Avg Driver Pay =
+AVERAGE(monthly_driver_summary[pay_total])
+
+Total Surcharges (Drivers) =
+SUM(monthly_driver_summary[surcharge_total])
+
+Surcharge Share of Pay =
+DIVIDE([Total Surcharges (Drivers)], [Total Payroll])
+
+-- ============================================================================
+-- KM performance
+-- ============================================================================
+
+Total KM (Drivers) =
+SUM(monthly_driver_summary[km_total])
+
+Total Loaded KM =
+SUM(monthly_driver_summary[km_loaded])
+
+Fleet Efficiency =
+DIVIDE([Total Loaded KM], [Total KM (Drivers)])
+
+Avg KM per Driver =
+AVERAGE(monthly_driver_summary[km_total])
+
+-- ============================================================================
+-- Goal tracking
+-- ============================================================================
+
+Drivers Hit Goal =
+CALCULATE(
+    COUNTROWS(monthly_driver_summary),
+    monthly_driver_summary[goal_met] = TRUE
+)
+
+Drivers Total =
+COUNTROWS(monthly_driver_summary)
+
+Goal Hit Rate =
+DIVIDE([Drivers Hit Goal], [Drivers Total])
+
+-- ============================================================================
+-- Night / weekend surcharge breakdown
+-- ============================================================================
+
+Total Night Surcharge =
+SUM(monthly_driver_summary[surcharge_night])
+
+Total Holiday Surcharge =
+SUM(monthly_driver_summary[surcharge_holiday])
+
+Total Sunday Surcharge =
+SUM(monthly_driver_summary[surcharge_sunday])
+
+-- ============================================================================
+-- Schedule / attendance measures (from driver_schedule)
+-- ============================================================================
+
+Avg Days Worked =
+AVERAGE(driver_schedule[days_worked])
+
+Total Absences =
+SUM(driver_schedule[days_absence])
+
+Total Medical Days =
+SUM(driver_schedule[days_medical])
+
+Total Vacation Days =
+SUM(driver_schedule[days_vacation])
+
+Attendance Rate =
+DIVIDE(
+    SUM(driver_schedule[days_worked]),
+    SUM(driver_schedule[days_salary])
+)
