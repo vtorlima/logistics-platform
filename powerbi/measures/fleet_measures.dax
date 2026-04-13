@@ -1,0 +1,92 @@
+-- ============================================================================
+-- Core fleet measures
+-- ============================================================================
+
+Total Fleet KM =
+SUM(monthly_vehicle_summary[km_total])
+
+Total Loaded KM (Fleet) =
+SUM(monthly_vehicle_summary[km_loaded])
+
+Total Empty KM =
+[Total Fleet KM] - [Total Loaded KM (Fleet)]
+
+Fleet Load Ratio =
+DIVIDE([Total Loaded KM (Fleet)], [Total Fleet KM])
+
+Avg KM per Day (Fleet) =
+AVERAGE(monthly_vehicle_summary[km_per_day])
+
+Avg Rides per Day (Fleet) =
+AVERAGE(monthly_vehicle_summary[rides_per_day])
+
+Total Unaccounted KM =
+SUM(monthly_vehicle_summary[km_unaccounted])
+
+Unaccounted KM Share =
+DIVIDE([Total Unaccounted KM], [Total Fleet KM])
+
+-- ============================================================================
+-- Active vehicles
+-- ============================================================================
+
+Active Vehicles =
+DISTINCTCOUNT(monthly_vehicle_summary[plate])
+
+Avg Working Days =
+AVERAGE(monthly_vehicle_summary[working_days])
+
+-- ============================================================================
+-- Rank movement (requires multiple months in context)
+-- ============================================================================
+
+Rank This Month =
+CALCULATE(
+    MIN(monthly_vehicle_summary[fleet_rank]),
+    LASTDATE(DateTable[Date])
+)
+
+Rank Previous Month =
+CALCULATE(
+    MIN(monthly_vehicle_summary[fleet_rank]),
+    DATEADD(DateTable[Date], -1, MONTH)
+)
+
+Rank Change =
+IF(
+    ISBLANK([Rank Previous Month]),
+    BLANK(),
+    [Rank Previous Month] - [Rank This Month]
+    -- Positive = improved rank (moved up), Negative = dropped
+)
+
+-- ============================================================================
+-- Odometer tracking
+-- ============================================================================
+
+Odometer Start =
+MIN(monthly_vehicle_summary[odometer_start])
+
+Odometer End =
+MAX(monthly_vehicle_summary[odometer_end])
+
+Odometer Delta =
+[Odometer End] - [Odometer Start]
+
+-- ============================================================================
+-- Unaccounted KM alert
+-- ============================================================================
+
+Unaccounted Alert =
+VAR threshold = 200
+VAR vehicles_over =
+    CALCULATE(
+        COUNTROWS(monthly_vehicle_summary),
+        monthly_vehicle_summary[km_unaccounted] > threshold
+    )
+RETURN
+IF(
+    vehicles_over > 0,
+    vehicles_over & " veículo(s) com mais de " & threshold & " km não contabilizados.",
+    "Nenhuma anomalia de km detectada."
+)
