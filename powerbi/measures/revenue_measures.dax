@@ -1,0 +1,87 @@
+-- ============================================================================
+-- Core revenue measures
+-- ============================================================================
+
+Total Revenue =
+SUM(monthly_company_summary[revenue_final])
+
+Revenue Subtotal =
+SUM(monthly_company_summary[revenue_subtotal])
+
+Revenue Tax =
+[Total Revenue] - [Revenue Subtotal]
+
+Avg Ticket =
+AVERAGE(monthly_company_summary[avg_ride_value])
+
+Total Rides (Companies) =
+SUM(monthly_company_summary[total_rides])
+
+-- ============================================================================
+-- Month-over-month comparison
+-- ============================================================================
+
+Revenue Previous Month =
+CALCULATE(
+    [Total Revenue],
+    DATEADD(DateTable[Date], -1, MONTH)
+)
+
+Revenue MoM Change =
+IF(
+    ISBLANK([Revenue Previous Month]) || [Revenue Previous Month] = 0,
+    BLANK(),
+    DIVIDE([Total Revenue] - [Revenue Previous Month], [Revenue Previous Month])
+)
+
+Revenue MoM Change % =
+FORMAT([Revenue MoM Change], "0.0%")
+
+-- ============================================================================
+-- Company share
+-- ============================================================================
+
+Company Revenue Share =
+DIVIDE(
+    [Total Revenue],
+    CALCULATE([Total Revenue], ALL(monthly_company_summary[company]))
+)
+
+-- ============================================================================
+-- Running total (for waterfall / cumulative charts)
+-- ============================================================================
+
+Revenue YTD =
+CALCULATE(
+    [Total Revenue],
+    DATESYTD(DateTable[Date])
+)
+
+-- ============================================================================
+-- Revenue per KM (efficiency metric)
+-- ============================================================================
+
+Revenue per KM =
+DIVIDE(
+    SUM(monthly_company_summary[revenue_final]),
+    SUM(monthly_company_summary[km_loaded])
+)
+
+-- ============================================================================
+-- Breakdown measures (for stacked bar)
+-- ============================================================================
+
+Revenue Rides Only =
+SUM(monthly_company_summary[revenue_rides])
+
+Revenue Surcharges =
+SUM(monthly_company_summary[revenue_surcharges])
+
+Revenue Idle Time =
+SUM(monthly_company_summary[revenue_idle_time])
+
+Revenue Extras =
+SUM(monthly_company_summary[revenue_toll]) +
+SUM(monthly_company_summary[revenue_parking]) +
+SUM(monthly_company_summary[revenue_transit]) +
+SUM(monthly_company_summary[revenue_return])
