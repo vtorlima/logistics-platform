@@ -36,3 +36,27 @@ Instead of sharing real data, this project focuses on how the system works, not 
 - Referential integrity and business rules are preserved
 
 This allows the system to behave like the real one without exposing sensitive information.
+
+## Seed Data
+
+Generates 3 months of realistic fake ride data (Jan–Mar 2026) as `.xlsx` workbooks,
+matching the structure of the real operational spreadsheet. No real data is included.
+
+### Setup
+
+```bash
+pip install openpyxl faker python-dotenv
+```
+
+### Run
+
+```bash
+python -m seed.main
+```
+
+Output files are written to `seed/output/` (gitignored):
+- `VCTrans_2026-01.xlsx`
+- `VCTrans_2026-02.xlsx`
+- `VCTrans_2026-03.xlsx`
+
+Each workbook contains: Controle, Passageiro, Empresa, Colaboradores, Frota, Região, Config.
