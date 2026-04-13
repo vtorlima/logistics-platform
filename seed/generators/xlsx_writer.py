@@ -52,6 +52,11 @@ def write_workbook(
     passageiro: list[dict],
     colaboradores: list[dict],
     frota: list[dict],
+    folha: list[dict],
+    financeiro: list[dict],
+    frota_stats: list[dict],
+    folga: list[dict],
+    metas: list[dict],
     output_dir: str,
 ):
     """
@@ -95,10 +100,28 @@ def write_workbook(
     ws_cfg.append(["Feriado 3", "2026-02-17"])
     ws_cfg.append(["Feriado 4", "2026-03-06"])
 
-    # Frete, Folha, Financeiro — empty placeholders, populated in commit 1.6
+    # Folha — driver payroll
+    ws_folha = wb.create_sheet("Folha")
+    _write_sheet(ws_folha, list(folha[0].keys()), folha)
+
+    # Financeiro — company revenue summary
+    ws_fin = wb.create_sheet("Financeiro")
+    _write_sheet(ws_fin, list(financeiro[0].keys()), financeiro)
+
+    # Frota Stats — vehicle performance
+    ws_frota_stats = wb.create_sheet("Frota Stats")
+    _write_sheet(ws_frota_stats, list(frota_stats[0].keys()), frota_stats)
+
+    # Folga — driver schedule
+    ws_folga = wb.create_sheet("Folga")
+    _write_sheet(ws_folga, list(folga[0].keys()), folga)
+
+    # Metas — KM goals
+    ws_metas = wb.create_sheet("Metas")
+    _write_sheet(ws_metas, list(metas[0].keys()), metas)
+
+    # Frete — empty placeholder
     wb.create_sheet("Frete")
-    wb.create_sheet("Folha")
-    wb.create_sheet("Financeiro")
 
     filepath = os.path.join(output_dir, f"VCTrans_{month}.xlsx")
     wb.save(filepath)

@@ -14,6 +14,13 @@ from seed.generators.master_data import (
 )
 from seed.generators.rides import generate_rides
 from seed.generators.xlsx_writer import write_workbook
+from seed.generators.summaries import (
+    generate_folha,
+    generate_financeiro,
+    generate_frota_stats,
+    generate_folga,
+    generate_metas,
+)
 
 
 def main():
@@ -36,6 +43,12 @@ def main():
         rides = generate_rides(month, passageiro, os_counter)
         os_counter += len(rides)
 
+        folha = generate_folha(month, rides)
+        financeiro = generate_financeiro(month, rides)
+        frota_stats = generate_frota_stats(month, rides, frota)
+        folga = generate_folga(month)
+        metas = generate_metas(month, folha)
+
         write_workbook(
             month=month,
             rides=rides,
@@ -43,6 +56,11 @@ def main():
             passageiro=passageiro,
             colaboradores=colaboradores,
             frota=frota,
+            folha=folha,
+            financeiro=financeiro,
+            frota_stats=frota_stats,
+            folga=folga,
+            metas=metas,
             output_dir=output_dir,
         )
 
