@@ -1,0 +1,92 @@
+-- ============================================================================
+-- Operational KPIs (from rides table)
+-- ============================================================================
+
+Total Rides =
+COUNTROWS(rides)
+
+Rides per Day =
+DIVIDE([Total Rides], DISTINCTCOUNT(rides[ride_date]))
+
+Avg Passengers per Ride =
+AVERAGE(rides[passenger_count])
+
+Avg KM per Ride =
+AVERAGE(rides[km_loaded])
+
+Night Ride Share =
+DIVIDE(
+    CALCULATE(COUNTROWS(rides), rides[night_km] > 0),
+    [Total Rides]
+)
+
+Sunday Ride Share =
+DIVIDE(
+    CALCULATE(COUNTROWS(rides), rides[sunday_km] > 0),
+    [Total Rides]
+)
+
+-- ============================================================================
+-- Financial KPIs
+-- ============================================================================
+
+Gross Revenue =
+SUM(monthly_company_summary[revenue_final])
+
+Gross Revenue PM =
+CALCULATE([Gross Revenue], DATEADD(DateTable[Date], -1, MONTH))
+
+Revenue Growth =
+DIVIDE([Gross Revenue] - [Gross Revenue PM], [Gross Revenue PM])
+
+Revenue Growth Label =
+IF(
+    ISBLANK([Revenue Growth]),
+    "—",
+    FORMAT(ABS([Revenue Growth]), "0.0%") &
+    IF([Revenue Growth] >= 0, " ▲", " ▼")
+)
+
+Top Company Revenue =
+CALCULATE(
+    [Gross Revenue],
+    TOPN(1, ALL(monthly_company_summary[company]), [Gross Revenue])
+)
+
+Top Company Name =
+CALCULATE(
+    FIRSTNONBLANK(monthly_company_summary[company], 1),
+    TOPN(1, ALL(monthly_company_summary[company]), [Gross Revenue])
+)
+
+-- ============================================================================
+-- Payroll KPIs
+-- ============================================================================
+
+Total Payroll (Summary) =
+SUM(monthly_driver_summary[pay_total])
+
+Payroll to Revenue Ratio =
+DIVIDE([Total Payroll (Summary)], [Gross Revenue])
+
+-- ============================================================================
+-- Alert measures
+-- ============================================================================
+
+Drivers Below Goal =
+CALCULATE(
+    COUNTROWS(monthly_driver_summary),
+    monthly_driver_summary[goal_met] = FALSE
+)
+
+Pending Rides =
+CALCULATE(
+    COUNTROWS(rides),
+    rides[status] = "Pendente"
+)
+
+Vehicles With Unaccounted KM =
+CALCULATE(
+    COUNTROWS(monthly_vehicle_summary),
+    monthly_vehicle_summary[km_unaccounted] > 200
+)
